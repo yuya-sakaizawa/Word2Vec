@@ -31,20 +31,6 @@ public interface Matrix {
     public void add(int row, int column, float number);
 
     /**
-     * 行列の要素にnumberをセットする
-     * @param row 行数
-     * @param column 列数
-     * @param number セットする数
-     */
-    public void set(int row, int column, float number);
-
-    /**
-     * 行列を返す
-     * @return 行列
-     */
-    public float[][] getMatrix();
-
-    /**
      * 行列の指定された要素を返す
      * @param row 行数
      * @param column 列数
