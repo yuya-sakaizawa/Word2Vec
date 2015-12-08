@@ -12,7 +12,8 @@ public class Word2VecImp
 
     private MatrixImp inputMatrix;
     private MatrixImp outputMatrix;
-    private List<List<Node>> nodeLists;
+    //private List<List<Node>> nodeLists;
+    private List<List<HuffmanTree>> nodeLists;
     private Vocab vocab;
     private SoftMax softMax;
 
@@ -27,7 +28,7 @@ public class Word2VecImp
      * @param epoc エポック数
      * @throws IOException
      */
-    public void train(File file, LearningStrategy learningStrategy, int window, int size, int minCount, float learningRate, int epoc) throws IOException {
+    public void train(File file, LearningStrategy learningStrategy, int window, int size, int minCount, double learningRate, int epoc) throws IOException {
         for (int i = 0; i < epoc; i++) {
             train(file, learningStrategy, window, size, minCount, learningRate);
         }
@@ -43,17 +44,17 @@ public class Word2VecImp
      * @param learningRate 学習率
      * @throws IOException
      */
-    public void train(File file, LearningStrategy learningStrategy, int window, int size, int minCount, float learningRate) throws IOException {
+    public void train(File file, LearningStrategy learningStrategy, int window, int size, int minCount, double learningRate) throws IOException {
         vocab = new Vocab(new SentenceReader(file));
         inputMatrix = new MatrixImp(vocab.vocabNum(), size);
         inputMatrix.initialize();
 
         if (learningStrategy.equals(learningStrategy.HS)) {
-            Huffman huffman = new HuffmanImp();
-            huffman.createTree(new SentenceReader(file), size);
-            nodeLists = new ArrayList<List<Node>>();
+            HuffmanTreeBuilder huffmanTreeBuilder = new HuffmanTreeBuilderImpl();
+            huffmanTreeBuilder.buildHuffmanTree(new SentenceReader(file), size);
+            nodeLists = new ArrayList<List<HuffmanTree>>();
             for (int i = 0; i < vocab.vocabNum(); i++) {
-                nodeLists.add(huffman.getNodeList(vocab.getWord(i)));
+                nodeLists.add(huffmanTreeBuilder.getNodeList(vocab.getWord(i)));
             }
         } else if (learningStrategy.equals(learningStrategy.SoftMax)) {
             outputMatrix = new MatrixImp(size, vocab.vocabNum());
@@ -62,30 +63,14 @@ public class Word2VecImp
         }
 
         SentenceReader sentenceReader = new SentenceReader(file);
-        int count = 0;
+        System.out.println("start!!");
         for (String[] sentence : sentenceReader) {
-            System.out.println(count++);
             train(sentence, learningStrategy, window, size, minCount, learningRate);
         }
-
-        // 別個に管理したいときはこれらを使う
-        /*
-        if (learningStrategy.equals(learningStrategy.HS)) {
-            for (String[] sentence : sentenceReader) {
-                System.out.println(count++);
-                trainHS(sentence, window, size, minCount, learningRate);
-            }
-        } else if (learningStrategy.equals(learningStrategy.com.github.sakaizawa.word2vec.SoftMax)) {
-            for (String[] sentence : sentenceReader) {
-                System.out.println(count++);
-                trainSoftMax(sentence, window, size, minCount, learningRate);
-            }
-        }
-        */
-
+        System.out.println("end!!");
     }
 
-    public void train(String[] sentence, LearningStrategy learningStrategy, int window, int size, int minCount, float learningRate) {
+    public void train(String[] sentence, LearningStrategy learningStrategy, int window, int size, int minCount, double learningRate) {
         for (int wordNum = 0; wordNum < sentence.length; wordNum++) {
             String word = sentence[wordNum];
             Vector errorVector = new VectorImp(size);
@@ -93,6 +78,8 @@ public class Word2VecImp
             if (learningStrategy.equals(learningStrategy.SoftMax)) {
                 errorVector = new VectorImp(vocab.vocabNum());
                 outputVector = softMax.calculateSortMax(outputMatrix, inputMatrix.getRow(vocab.getIndex(word)));
+            } else if (learningStrategy.equals(learningStrategy.HS)) {
+                errorVector = new VectorImp(size);
             }
             for (int i = -window; i <= window; i++) {
                 if ((wordNum + i < 0) || (sentence.length <= wordNum + i) || (i == 0)) {
@@ -100,8 +87,8 @@ public class Word2VecImp
                 } else {
                     String predictWord = sentence[wordNum+i];
                     if (learningStrategy.equals(learningStrategy.HS)) {
-                        updateHidden(nodeLists.get(vocab.getIndex(predictWord)), inputMatrix.getRow(vocab.getIndex(word)), learningRate);
-                        calculateError(errorVector, nodeLists.get(vocab.getIndex(predictWord)), inputMatrix.getRow(vocab.getIndex(word)));
+                        updateHidden(predictWord, word, learningRate);
+                        calculateError(errorVector, predictWord, word);
                     } else if (learningStrategy.equals(learningStrategy.SoftMax)) {
                         Vector correctVector;
                         correctVector = createCorrectVector(vocab.getIndex(predictWord), vocab.vocabNum());
@@ -110,7 +97,7 @@ public class Word2VecImp
                 }
             }
             if (learningStrategy.equals(learningStrategy.HS)) {
-                updateInput(errorVector, inputMatrix.getRow(vocab.getIndex(word)), learningRate, word);
+                updateInput(errorVector, word, learningRate);
             } else if (learningStrategy.equals(learningStrategy.SoftMax)) {
                 updateOutputMatrix(errorVector, inputMatrix.getRow(vocab.getIndex(word)), learningRate);
                 updateInputMatrix(word, errorVector, learningRate);
@@ -118,160 +105,83 @@ public class Word2VecImp
         }
     }
 
-    public void trainEx(String[] sentence, LearningStrategy learningStrategy, int window, int size, int minCount, float learningRate) {
-        for (int wordNum = 0; wordNum < sentence.length; wordNum++) {
-            String word = sentence[wordNum];
-            Vector errorVector = new VectorImp(size);
-            Vector outputVector = null;
-            if (learningStrategy.equals(learningStrategy.SoftMax)) {
-                errorVector = new VectorImp(vocab.vocabNum());
-                outputVector = softMax.calculateSortMax(outputMatrix, inputMatrix.getRow(vocab.getIndex(word)));
-            }
-            for (int i = -window; i <= window; i++) {
-                if ((wordNum + i < 0) || (sentence.length <= wordNum + i) || (i == 0)) {
-                    continue;
-                } else {
-                    String predictWord = sentence[wordNum+i];
-                    if (learningStrategy.equals(learningStrategy.HS)) {
-                        updateHidden(nodeLists.get(vocab.getIndex(predictWord)), inputMatrix.getRow(vocab.getIndex(word)), learningRate);
-                        calculateError(errorVector, nodeLists.get(vocab.getIndex(predictWord)), inputMatrix.getRow(vocab.getIndex(word)));
-                    } else if (learningStrategy.equals(learningStrategy.SoftMax)) {
-                        Vector correctVector;
-                        correctVector = createCorrectVector(vocab.getIndex(predictWord), vocab.vocabNum());
-                        errorVector = calculateError(errorVector, correctVector, outputVector);
-                    }
-                }
-            }
-            System.out.println();
-            if (learningStrategy.equals(learningStrategy.HS)) {
-                updateInput(errorVector, inputMatrix.getRow(vocab.getIndex(word)), learningRate, word);
-            } else if (learningStrategy.equals(learningStrategy.SoftMax)) {
-                updateOutputMatrix(errorVector, inputMatrix.getRow(vocab.getIndex(word)), learningRate);
-                updateInputMatrix(word, errorVector, learningRate);
-            }
-        }
-    }
-
-    /**
-     * 階層的SoftMaxの学習
-     * @param sentence 文
-     * @param window 窓長
-     * @param size 次元
-     * @param minCount 最低頻度
-     * @param learningRate 学習率
-     */
-    public void trainHS(String[] sentence, int window, int size, int minCount, float learningRate) {
-        for (int wordNum = 0; wordNum < sentence.length; wordNum++) {
-            String word = sentence[wordNum];
-            Vector errorVector = new VectorImp(size);
-            for (int i = -window; i <= window; i++) {
-                if ((wordNum + i < 0) || (sentence.length <= wordNum + i) || (i == 0)) {
-                    continue;
-                } else {
-                    String predictWord = sentence[wordNum+i];
-                    updateHidden(nodeLists.get(vocab.getIndex(predictWord)), inputMatrix.getRow(vocab.getIndex(word)), learningRate);
-                    calculateError(errorVector, nodeLists.get(vocab.getIndex(predictWord)), inputMatrix.getRow(vocab.getIndex(word)));
-                }
-            }
-            updateInput(errorVector, inputMatrix.getRow(vocab.getIndex(word)), learningRate, word);
-        }
-    }
-
-    /**
-     * output → hidden の誤差伝搬
-     * @param nodeList ノードリスト
-     * @param hiddenVector 中間層のベクトル
-     * @param learningRate 学習率
-     */
-    protected void updateHidden(List<Node> nodeList, Vector hiddenVector, float learningRate){
-        for (int nodeNum = 0; nodeNum < nodeList.size(); nodeNum++) {
-            Node node = nodeList.get(nodeNum);
-            Node parent = node.getParent();
-            Float dot = calculateDot(parent.getVector(), hiddenVector);
-            float sig = (float) (1 / (1 + Math.exp(dot)));
-            if (node.getLabel().equals("1")) {
-                for (int i = 0; i <parent.getVector().getDimension(); i++) {
-                    parent.getVector().add(i, -learningRate * (sig-1) * hiddenVector.getElement(i) );
-                }
-            } else {
-                for (int i = 0; i <parent.getVector().getDimension(); i++) {
-                    parent.getVector().add(i, -learningRate * sig * hiddenVector.getElement(i) );
-                }
-            }
-        }
-    }
-
-    protected void updateHiddenEx(String predictWord, String word, float learningRate){
-        List<Node> nodeList = nodeLists.get(vocab.getIndex(predictWord));
+    protected void updateHidden(String predictWord, String word, double learningRate) {
+        List<HuffmanTree> nodeList = nodeLists.get(vocab.getIndex(predictWord));
         Vector hiddenVector = inputMatrix.getRow(vocab.getIndex(word));
-        for (int nodeNum = 0; nodeNum < nodeList.size(); nodeNum++) {
-            Node node = nodeList.get(nodeNum);
-            Node parent = node.getParent();
-            Float dot = calculateDot(parent.getVector(), hiddenVector);
-            float sig = (float) (1 / (1 + Math.exp(dot)));
-            if (node.getLabel().equals("1")) {
-                for (int i = 0; i <parent.getVector().getDimension(); i++) {
-                    parent.getVector().add(i, -learningRate * (sig-1) * hiddenVector.getElement(i) );
-                }
+        for (int nodeNum = 0; nodeNum < nodeList.size()-1; nodeNum++) {
+            HuffmanTree child = nodeList.get(nodeNum);
+            HuffmanTree node = nodeList.get(nodeNum+1);
+            double dot = calculateDot(node.getVector(), hiddenVector);
+            double sig = (double) (1 / (1 + Math.exp(-dot)));
+            if (child.equals(node.getLeftChild())) {
+                updateHiddenVector(node.getVector(), learningRate, sig - 1, hiddenVector);
             } else {
-                for (int i = 0; i <parent.getVector().getDimension(); i++) {
-                    parent.getVector().add(i, -learningRate * sig * hiddenVector.getElement(i) );
-                }
+                updateHiddenVector(node.getVector(), learningRate, sig, hiddenVector);
             }
+        }
+    }
+
+    protected void updateHiddenVector (Vector oldVector, double learningRate, double sig,  Vector hiddenVector) {
+        for (int i = 0; i < oldVector.getDimension(); i++) {
+            oldVector.add(i, -learningRate * sig * hiddenVector.getElement(i));
         }
     }
 
     /**
      * エラー計算
      * @param errorVector エラーベクトル
-     * @param nodeList ノードリスト
-     * @param hiddenVector 中間層のベクトル（単語ベクトル）
+     * @param predictWord ノードリスト
+     * @param word 中間層のベクトル（単語ベクトル）
      */
-    protected void calculateError(Vector errorVector, List<Node> nodeList, Vector hiddenVector) {
+    protected void calculateError(Vector errorVector, String predictWord, String word) {
         Vector error = new VectorImp(errorVector.getDimension());
-        for (int nodeNum = 0; nodeNum < nodeList.size(); nodeNum++) {
-            Node node = nodeList.get(nodeNum);
-            Node parent = node.getParent();
-            float dot = calculateDot(parent.getVector(), hiddenVector);
-            float sig = (float) (1 / (1 + Math.exp(dot)));
-            if (node.getLabel().equals("1")) {
-                for (int i = 0; i < parent.getVector().getDimension(); i++) {
-                    error.add(i, (sig-1) * parent.getVector().getElement(i));
-                }
+        List<HuffmanTree> nodeList = nodeLists.get(vocab.getIndex(predictWord));
+        Vector hiddenVector = inputMatrix.getRow(vocab.getIndex(word));
+        for (int nodeNum = 0; nodeNum < nodeList.size()-1 ; nodeNum++) {
+            HuffmanTree child = nodeList.get(nodeNum);
+            HuffmanTree node = nodeList.get(nodeNum + 1);
+            double dot = calculateDot(node.getVector(), hiddenVector);
+            double sig = calculateSigmoid(dot);
+            if (child.equals(node.getLeftChild())) {
+                sumErrorVector(error, sig-1, node.getVector());
             } else {
-                for (int i = 0; i < parent.getVector().getDimension(); i++) {
-                    error.add(i, (sig) * parent.getVector().getElement(i));
-                }
+                sumErrorVector(error, sig, node.getVector());
             }
         }
+        sumVector(errorVector, error);
+    }
+
+    protected void sumErrorVector (Vector errorVector, double sig,  Vector nodeVector) {
+        for (int i = 0; i < errorVector.getDimension(); i++) {
+            errorVector.add(i, sig * nodeVector.getElement(i));
+        }
+    }
+
+    protected void sumVector (Vector errorVector, Vector error) {
         for (int i = 0; i < errorVector.getDimension(); i++) {
             errorVector.add(i, error.getElement(i));
         }
     }
 
     /**
+     * シグモイド関数の計算
+     * @param x 変数
+     * @return 計算結果
+     */
+    protected double calculateSigmoid(double x) {
+        return (1 / (1 + Math.exp(-x)));
+    }
+    /**
      * hidden → input の誤差伝搬
      * @param errorVector エラーベクトル
-     * @param inputVector 単語ベクトル
+     * @param word 単語ベクトル
      * @param learningRate 学習率
      */
-    protected void updateInput(Vector errorVector, Vector inputVector, float learningRate, String word) {
-
-        for (int i = 0; i < inputVector.getDimension(); i++) {
-            inputVector.add(i, -learningRate * errorVector.getElement(i));
+    protected void updateInput(Vector errorVector, String word, double learningRate) {
+        int id = vocab.getIndex(word);
+        for (int i = 0; i < errorVector.getDimension(); i++) {
+            inputMatrix.add(id, i, -learningRate * errorVector.getElement(i));
         }
-
-        /*
-        for (int i=0; i < inputMatrix.getRow(vocab.getIndex(word)).getDimension() ; i++) {
-            inputMatrix.add(vocab.getIndex(word), i, -learningRate * errorVector.getElement(i));
-            if (Float.isNaN(inputMatrix.getElement(vocab.getIndex(word), i))) {
-                System.out.println(-learningRate);
-                System.out.println(errorVector.getElement(i));
-                System.out.println(-learningRate * errorVector.getElement(i));
-                System.out.println();
-            }
-        }
-        */
     }
 
 
@@ -284,7 +194,7 @@ public class Word2VecImp
      * @param minCount 最低頻度
      * @param learningRate 学習率
      */
-    public void trainSoftMax(String[] sentence, int window, int size, int minCount, float learningRate) {
+    public void trainSoftMax(String[] sentence, int window, int size, int minCount, double learningRate) {
         for (int wordNum = 0; wordNum < sentence.length; wordNum++) {
             String word = sentence[wordNum];
             Vector outputVector;
@@ -343,7 +253,7 @@ public class Word2VecImp
      * @param inputVector 中間層のベクトル
      * @param learningRate 学習率
      */
-    protected void updateOutputMatrix(Vector errorVector, Vector inputVector, float learningRate) {
+    protected void updateOutputMatrix(Vector errorVector, Vector inputVector, double learningRate) {
         for (int i = 0; i < outputMatrix.getRowNum(); i++) {
             for (int j = 0; j < outputMatrix.getColumnNum(); j++) {
                 outputMatrix.add(i, j, -learningRate * errorVector.getElement(j) * inputVector.getElement(i));
@@ -357,7 +267,7 @@ public class Word2VecImp
      * @param errorVector　エラーベクトル
      * @param learningRate 学習率
      */
-    protected void updateInputMatrix(String word, Vector errorVector, float learningRate) {
+    protected void updateInputMatrix(String word, Vector errorVector, double learningRate) {
         Vector error = new VectorImp(inputMatrix.getColumnNum());
         for (int i = 0; i < errorVector.getDimension(); i++) {
             for (int j = 0; j < outputMatrix.getRowNum(); j++) {
@@ -408,10 +318,10 @@ public class Word2VecImp
      * @param word_2
      * @return 単語間の類似度
      */
-    public float similarity(String word_1, String word_2) {
+    public double similarity(String word_1, String word_2) {
         Vector vector_1 = inputMatrix.getRow(vocab.getIndex(word_1));
         Vector vector_2 = inputMatrix.getRow(vocab.getIndex(word_2));
-        float similarity = 0.0f;
+        double similarity = 0.0f;
         for (int i = 0; i < vector_1.getDimension(); i++) {
             similarity += vector_1.getElement(i) * vector_2.getElement(i);
         }
@@ -428,7 +338,7 @@ public class Word2VecImp
      */
     public void mostSimilarity(String word, int topN) {
         int index = 1;
-        float max = 0.0f;
+        double max = 0.0f;
         for (String key : vocab.getVocab().keySet()) {
             if (similarity(word, key) >= max && !key.equals(word)) {
                 System.out.print(similarity(key, word));
@@ -441,10 +351,10 @@ public class Word2VecImp
         System.out.println(max);
     }
 
-    protected float calculateDot(Vector vector_1, Vector vector_2) {
-        float dot = 0f;
-        for (int i = 0; i < vector_1.getDimension(); i++) {
-            dot += vector_1.getElement(i) * vector_2.getElement(i);
+    protected double calculateDot(Vector vector1, Vector vector2) {
+        double dot = 0f;
+        for (int i = 0; i < vector1.getDimension(); i++) {
+            dot += vector1.getElement(i) * vector2.getElement(i);
         }
         return dot;
     }

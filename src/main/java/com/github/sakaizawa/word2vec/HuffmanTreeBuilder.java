@@ -15,4 +15,11 @@ public interface HuffmanTreeBuilder {
      * @return
      */
     public HuffmanTree buildHuffmanTree(SentenceReader sentenceReader, int size);
+
+    /**
+     * 下から順にルート一歩手前のノードまでのノードのリストを返す
+     * @param word 単語
+     * @return ノードのリスト
+     */
+    public List<HuffmanTree> getNodeList(String word);
 }

@@ -1,12 +1,13 @@
 package com.github.sakaizawa.word2vec;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by sakaisawayuya on 2015/11/11.
  */
 public class HuffmanTreeBuilderImpl
-    implements HuffmanTreeBuilder{
+    implements HuffmanTreeBuilder, Serializable{
 
     private Map<String, HuffmanTree> leafNodeMap = new HashMap<String, HuffmanTree>();
     private List<HuffmanTree> nodeList = new ArrayList<HuffmanTree>();
@@ -40,6 +41,23 @@ public class HuffmanTreeBuilderImpl
             leafNodeMap.put(word, huffmanTree);
         }
         Collections.sort(nodeList, new HuffmanTreeComparator());
+    }
+
+    /**
+     * 下から順にルートノードまでのノードのリストを返す
+     * @param word 単語
+     * @return ノードのリスト
+     */
+    public List<HuffmanTree> getNodeList(String word) {
+        List<HuffmanTree> nodeList = new ArrayList<HuffmanTree>();
+        HuffmanTree leafNode = leafNodeMap.get(word);
+
+        while (leafNode.getParent() != null) {
+            nodeList.add(leafNode);
+            leafNode = leafNode.getParent();
+        }
+        nodeList.add(leafNode);
+        return nodeList;
     }
 
     /**
@@ -100,13 +118,5 @@ public class HuffmanTreeBuilderImpl
                 break;
             }
         }
-    }
-
-    /**
-     * leafnodeを返す
-     * @return leafnode
-     */
-    public Map<String, HuffmanTree> getLeafNodeMap() {
-        return leafNodeMap;
     }
 }

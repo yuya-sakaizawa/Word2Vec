@@ -1,10 +1,12 @@
 package com.github.sakaizawa.word2vec;
 
+import java.io.Serializable;
+
 /**
  * Created by sakaisawayuya on 2015/11/11.
  */
 public class HuffmanTreeImpl
-    implements HuffmanTree{
+    implements HuffmanTree, Serializable{
 
     private String label;
     private HuffmanTree parent;

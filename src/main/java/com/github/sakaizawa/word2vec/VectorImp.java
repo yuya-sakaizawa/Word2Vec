@@ -8,14 +8,14 @@ import java.io.Serializable;
 public class VectorImp
     implements Vector, Serializable{
 
-    private float[] vector;
+    private double[] vector;
 
     /**
      * 次元数を受け取って vector を生成する
      * @param size 次元数
      */
     public VectorImp(int size) {
-        vector = new float[size];
+        vector = new double[size];
     }
 
     /**
@@ -23,7 +23,7 @@ public class VectorImp
      */
     public void initialize() {
         for (int i=0; i<vector.length; i++) {
-            vector[i] = (float) (Math.random()*2-1);
+            vector[i] = (double) (Math.random()*2-1);
         }
     }
 
@@ -33,7 +33,7 @@ public class VectorImp
      * @param index
      * @param number 加える数
      */
-    public void add(int index, float number) {
+    public void add(int index, double number) {
         vector[index] += number;
     }
 
@@ -42,7 +42,7 @@ public class VectorImp
      *
      * @return ベクトル
      */
-    public float[] getVector() {
+    public double[] getVector() {
         return vector;
     }
 
@@ -51,12 +51,12 @@ public class VectorImp
      *
      * @return ベクトルの大きさ
      */
-    public float getSize() {
+    public double getSize() {
         double magnitude = 0;
         for (int i = 0; i < vector.length; i++) {
             magnitude += Math.pow((double)vector[i], 2);
         }
-        return (float) Math.sqrt(magnitude);
+        return (double) Math.sqrt(magnitude);
     }
 
     /**
@@ -65,7 +65,7 @@ public class VectorImp
      * @param index
      * @return ベクトルの指定されたindexの値
      */
-    public float getElement(int index) {
+    public double getElement(int index) {
         return vector[index];
     }
 

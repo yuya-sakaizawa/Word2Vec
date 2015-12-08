@@ -28,7 +28,7 @@ public interface Matrix {
      * @param column 列数
      * @param number 加える数
      */
-    public void add(int row, int column, float number);
+    public void add(int row, int column, double number);
 
     /**
      * 行列の指定された要素を返す
@@ -36,7 +36,7 @@ public interface Matrix {
      * @param column 列数
      * @return 要素
      */
-    public float getElement(int row, int column);
+    public double getElement(int row, int column);
 
     /**
      * 行列の指定された行を返す

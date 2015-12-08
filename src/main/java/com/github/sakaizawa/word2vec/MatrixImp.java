@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class MatrixImp
     implements Matrix , Serializable{
 
-    private float[][] matrix;
+    private double[][] matrix;
 
     /**
      * 行数と列数を受け取って行列を生成
@@ -16,7 +16,7 @@ public class MatrixImp
      * @param column 列数
      */
     public MatrixImp(int row, int column) {
-        matrix = new float[row][column];
+        matrix = new double[row][column];
     }
 
     /**
@@ -25,7 +25,7 @@ public class MatrixImp
     public void initialize() {
         for (int i=0; i<matrix.length; i++) {
             for (int j=0; j<matrix[i].length; j++) {
-                matrix[i][j] = (float) (Math.random()*2-1);
+                matrix[i][j] = (double) (Math.random()*2-1);
             }
         }
     }
@@ -55,7 +55,7 @@ public class MatrixImp
      * @param column 列数
      * @param number 加える数
      */
-    public void add(int row, int column, float number) {
+    public void add(int row, int column, double number) {
         matrix[row][column] += number;
     }
 
@@ -66,7 +66,7 @@ public class MatrixImp
      * @param column 列数
      * @return 要素
      */
-    public float getElement(int row, int column) {
+    public double getElement(int row, int column) {
         return matrix[row][column];
     }
 

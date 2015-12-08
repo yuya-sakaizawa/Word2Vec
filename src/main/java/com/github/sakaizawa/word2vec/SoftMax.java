@@ -9,5 +9,4 @@ public interface SoftMax {
 
     public Vector calculateSortMax(Matrix matrix, Vector vector);
 
-    public Vector calculateHSoftMax(List<List<Node>> nodeLists, Vector vector);
 }

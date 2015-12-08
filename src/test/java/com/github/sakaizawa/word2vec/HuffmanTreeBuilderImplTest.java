@@ -13,13 +13,18 @@ import static org.junit.Assert.*;
  */
 public class HuffmanTreeBuilderImplTest {
 
-    @Test
-    public void testBuildHuffmanTree() throws Exception {
+    private HuffmanTree huffmanTree;
+    private HuffmanTreeBuilder huffmanTreeBuilder;
+
+    public HuffmanTreeBuilderImplTest () throws Exception {
         File testFile = new File("/Users/sakaisawayuya/Desktop/JX/Word2Vec/data/TestHuffmanTreeBuilder");
         SentenceReader sentenceReader = new SentenceReader(testFile);
-        HuffmanTreeBuilder huffmanTreeBuilder = new HuffmanTreeBuilderImpl();
-        HuffmanTree huffmanTree = huffmanTreeBuilder.buildHuffmanTree(sentenceReader, 10);
+        huffmanTreeBuilder = new HuffmanTreeBuilderImpl();
+        huffmanTree = huffmanTreeBuilder.buildHuffmanTree(sentenceReader, 10);
+    }
 
+    @Test
+    public void testBuildHuffmanTree() throws Exception {
         assertEquals(10, huffmanTree.getFreq());
         assertEquals(4, huffmanTree.getLeftChild().getFreq());
         assertEquals("d", huffmanTree.getLeftChild().getLabel());
@@ -31,5 +36,14 @@ public class HuffmanTreeBuilderImplTest {
         assertEquals("a", huffmanTree.getRightChild().getLeftChild().getLeftChild().getLabel());
         assertEquals(2, huffmanTree.getRightChild().getLeftChild().getRightChild().getFreq());
         assertEquals("b", huffmanTree.getRightChild().getLeftChild().getRightChild().getLabel());
+    }
+
+    @Test
+    public void testGetNodeList() throws Exception {
+        List<HuffmanTree> nodeList1 = huffmanTreeBuilder.getNodeList("a");
+        assertEquals(1, nodeList1.get(0).getFreq());
+        assertEquals(3, nodeList1.get(1).getFreq());
+        assertEquals(6, nodeList1.get(2).getFreq());
+        assertEquals(10, nodeList1.get(3).getFreq());
     }
 }
