@@ -8,7 +8,7 @@ import java.util.*;
  * Created by sakaisawayuya on 2015/09/03.
  */
 public class Vocab
-    implements Serializable {
+        implements Serializable {
 
     /**
      * @param vocab 単語のユニークなIDを記憶

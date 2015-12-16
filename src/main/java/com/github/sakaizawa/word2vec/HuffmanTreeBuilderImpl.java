@@ -1,5 +1,6 @@
 package com.github.sakaizawa.word2vec;
 
+import javax.naming.NameNotFoundException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -12,11 +13,43 @@ public class HuffmanTreeBuilderImpl
     private Map<String, HuffmanTree> leafNodeMap = new HashMap<String, HuffmanTree>();
     private List<HuffmanTree> nodeList = new ArrayList<HuffmanTree>();
     private HuffmanTree huffmanTree;
+    private int size;
+    private double value = java.lang.Double.NaN;
+
+    /**
+     * ハフマン木を構築
+     *
+     * @param sentenceReader
+     * @param size
+     * @return
+     */
+    @Override
+    public HuffmanTree buildHuffmanTree(SentenceReader sentenceReader, int size) {
+        this.size = size;
+        initialize(sentenceReader);
+        this.huffmanTree = connectNode(size);
+        return this.huffmanTree;
+    }
+
+    /**
+     * ハフマン木を構築
+     *
+     * @param sentenceReader
+     * @param size
+     * @return
+     */
+    public HuffmanTree buildHuffmanTree(SentenceReader sentenceReader, int size, double value) {
+        this.size = size;
+        this.value = value;
+        initialize(sentenceReader);
+        this.huffmanTree = connectNode(size);
+        return this.huffmanTree;
+    }
 
     /**
      * リーフノードを作り、親のいないノードリストとしてそれらを全部入れる
      */
-    private void initialize(SentenceReader sentenceReader, int size) {
+    private void initialize(SentenceReader sentenceReader) {
         Map<String, Integer> wordFreq = new HashMap<String, Integer>();
         for (String[] sentence : sentenceReader) {
             for (String word : sentence) {
@@ -27,16 +60,20 @@ public class HuffmanTreeBuilderImpl
                 }
             }
         }
-        sortList(wordFreq, size);
+        sortList(wordFreq);
     }
 
     /**
      *
      * @param wordFreq
      */
-    private void sortList(Map<String, Integer> wordFreq, int size) {
+    private void sortList(Map<String, Integer> wordFreq) {
         for (String word : wordFreq.keySet()) {
-            HuffmanTree huffmanTree = new HuffmanTreeImpl(word, wordFreq.get(word), size);
+            if (java.lang.Double.isNaN(value)) {
+                huffmanTree = new HuffmanTreeImpl(word, wordFreq.get(word), size);
+            } else {
+                huffmanTree = new HuffmanTreeImpl(word, wordFreq.get(word), size, value);
+            }
             nodeList.add(huffmanTree);
             leafNodeMap.put(word, huffmanTree);
         }
@@ -60,43 +97,20 @@ public class HuffmanTreeBuilderImpl
         return nodeList;
     }
 
-    /**
-     * ハフマン木を構築
-     *
-     * @param sentenceReader
-     * @param size
-     * @return
-     */
-    @Override
-    public HuffmanTree buildHuffmanTree(SentenceReader sentenceReader, int size) {
-        initialize(sentenceReader, size);
-        this.huffmanTree = connectNode(size);
-        return this.huffmanTree;
-    }
-
     private HuffmanTree connectNode(int size) {
         while (nodeList.size() != 1) {
-            //HuffmanTree node1 = popMin();
-            //HuffmanTree node2 = popMin();
-            HuffmanTree parent = new HuffmanTreeImpl(size);
-            //parent.addNode(node1, node2);
+            HuffmanTree parent;
+            if (java.lang.Double.isNaN(value)) {
+                parent = new HuffmanTreeImpl(size);
+            } else {
+                parent = new HuffmanTreeImpl(size, value);
+            }
             parent.addNode(nodeList.get(0), nodeList.get(1));
             nodeList.remove(0);
             nodeList.remove(0);
             pushNode(parent);
         }
         return nodeList.get(0);
-    }
-
-    /**
-     * 親のいないノードリストの中から頻度が最も低いものをpopする
-     *
-     * @return 頻度が最も低いノード
-     */
-    private HuffmanTree popMin() {
-        HuffmanTree node = nodeList.get(0);
-        nodeList.remove(0);
-        return node;
     }
 
     //　探しかたに工夫する余地あり

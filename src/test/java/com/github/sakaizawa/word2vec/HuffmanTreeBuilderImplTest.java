@@ -14,13 +14,17 @@ import static org.junit.Assert.*;
 public class HuffmanTreeBuilderImplTest {
 
     private HuffmanTree huffmanTree;
+    private HuffmanTree huffmanTree1;
     private HuffmanTreeBuilder huffmanTreeBuilder;
+    private HuffmanTreeBuilder huffmanTreeBuilder2;
 
     public HuffmanTreeBuilderImplTest () throws Exception {
         File testFile = new File("/Users/sakaisawayuya/Desktop/JX/Word2Vec/data/TestHuffmanTreeBuilder");
         SentenceReader sentenceReader = new SentenceReader(testFile);
         huffmanTreeBuilder = new HuffmanTreeBuilderImpl();
         huffmanTree = huffmanTreeBuilder.buildHuffmanTree(sentenceReader, 10);
+        huffmanTreeBuilder2 = new HuffmanTreeBuilderImpl();
+        huffmanTree1 = huffmanTreeBuilder2.buildHuffmanTree(new SentenceReader(testFile), 10, 3);
     }
 
     @Test
@@ -36,6 +40,9 @@ public class HuffmanTreeBuilderImplTest {
         assertEquals("a", huffmanTree.getRightChild().getLeftChild().getLeftChild().getLabel());
         assertEquals(2, huffmanTree.getRightChild().getLeftChild().getRightChild().getFreq());
         assertEquals("b", huffmanTree.getRightChild().getLeftChild().getRightChild().getLabel());
+
+        Vector vector = new VectorImp(10, 3);
+        assertEquals(huffmanTree1.getVector().getElement(0), vector.getElement(0), 0.001);
     }
 
     @Test

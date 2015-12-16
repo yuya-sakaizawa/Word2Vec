@@ -84,3 +84,4 @@ public interface HuffmanTree {
      */
     public void setFreq(int freq);
 }
+

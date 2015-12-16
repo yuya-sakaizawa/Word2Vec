@@ -1,14 +1,11 @@
 package com.github.sakaizawa.word2vec;
 
+import java.util.Observable;
+
 /**
  * Created by sakaisawayuya on 2015/09/06.
  */
 public interface Vector {
-
-    /**
-     *  ベクトルを初期化する
-     */
-    public void initialize();
 
     /**
      * ベクトルを返す
@@ -17,11 +14,11 @@ public interface Vector {
     public double[] getVector();
 
     /**
-     * 指定されたindexにnumberを加える
-     * @param index
-     * @param number 加える数
+     * ベクトルの次元数を返す
+     * @return ベクトルの次元数
      */
-    public void add(int index, double number);
+    public int getDimension();
+
 
     /**
      * ベクトルの大きさを返す
@@ -30,16 +27,19 @@ public interface Vector {
     public double getSize();
 
     /**
-     * ベクトルの指定されたindexの値を返す
-     * @param index
-     * @return ベクトルの指定されたindexの値
+     * index 次元の値を返す
+     * @param index 次元
+     * @return index 次元の値
      */
     public double getElement(int index);
 
     /**
-     * ベクトルの大きさを返す
-     * @return ベクトルの大きさ
+     * index 次元の値に num を加える
+     * @param index インデックス
+     * @param num 加える数
      */
-    public int getDimension();
+    public void addElement(int index, double num);
 
+
+    //public boolean equals(Observable obj);
 }

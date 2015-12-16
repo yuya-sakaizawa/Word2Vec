@@ -1,6 +1,7 @@
 package com.github.sakaizawa.word2vec;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Created by sakaisawayuya on 2015/09/04.
@@ -10,22 +11,41 @@ public class MatrixImp
 
     private double[][] matrix;
 
-    /**
-     * 行数と列数を受け取って行列を生成
-     * @param row 行数
-     * @param column 列数
-     */
     public MatrixImp(int row, int column) {
-        matrix = new double[row][column];
+        this.matrix = new double[row][column];
+        initialize();
+    }
+
+    public MatrixImp(int row, int column, int value) {
+        this.matrix = new double[row][column];
+        initialize(value);
+    }
+
+    public MatrixImp(double[][] matrix) {
+        for (int i = 0; i < matrix.length; i++) {
+            this.matrix[i] = matrix[i].clone();
+        }
+    }
+
+    /**
+     * 行列の初期化
+     * @param value 初期値
+     */
+    public void initialize(double value) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                matrix[i][j] = value;
+            }
+        }
     }
 
     /**
      * 行列の初期化
      */
-    public void initialize() {
-        for (int i=0; i<matrix.length; i++) {
-            for (int j=0; j<matrix[i].length; j++) {
-                matrix[i][j] = (double) (Math.random()*2-1);
+    private void initialize() {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                matrix[i][j] = Math.random() * 2 - 1;
             }
         }
     }
@@ -35,6 +55,7 @@ public class MatrixImp
      *
      * @return 行数
      */
+    @Override
     public int getRowNum() {
         return matrix.length;
     }
@@ -44,19 +65,35 @@ public class MatrixImp
      *
      * @return 列数
      */
+    @Override
     public int getColumnNum() {
         return matrix[0].length;
     }
 
     /**
-     * 行列の要素にnumberを加える
+     * 指定された行のベクトルを返す
      *
-     * @param row    行数
-     * @param column 列数
-     * @param number 加える数
+     * @param row 行数
+     * @return 指定された行のベクトル
      */
-    public void add(int row, int column, double number) {
-        matrix[row][column] += number;
+    @Override
+    public Vector getRow(int row) {
+        Vector vector = new VectorImp(matrix[row].length, 0);
+        for (int i = 0; i < vector.getDimension(); i++) {
+            vector.addElement(i, matrix[row][i]);
+        }
+        return vector;
+    }
+
+    /**
+     * 指定された列のベクトルを返す
+     *
+     * @param column 列数
+     * @return 指定された列のベクトル
+     */
+    @Override
+    public Vector getColumn(int column) {
+        return null;
     }
 
     /**
@@ -64,37 +101,22 @@ public class MatrixImp
      *
      * @param row    行数
      * @param column 列数
-     * @return 要素
+     * @return 指定された要素
      */
+    @Override
     public double getElement(int row, int column) {
         return matrix[row][column];
     }
 
     /**
-     * 行列の指定された行を返す
+     * 行列の要素に num を加える
      *
-     * @param row 行数
-     * @return 指定された行
-     */
-    public Vector getRow(int row) {
-        Vector rowVector = new VectorImp(matrix[0].length);
-        for (int i = 0; i < matrix[0].length; i++) {
-            rowVector.add(i, matrix[row][i]);
-        }
-        return rowVector;
-    }
-
-    /**
-     * 指定された列を返す
-     *
+     * @param row    行数
      * @param column 列数
-     * @return 指定された列
+     * @param num    加える数
      */
-    public Vector getColumn(int column) {
-        Vector columnVector = new VectorImp(matrix.length);
-        for (int i = 0; i < matrix.length; i++) {
-            columnVector.add(i, matrix[i][column]);
-        }
-        return columnVector;
+    @Override
+    public void addElement(int row, int column, double num) {
+        matrix[row][column] += num;
     }
 }

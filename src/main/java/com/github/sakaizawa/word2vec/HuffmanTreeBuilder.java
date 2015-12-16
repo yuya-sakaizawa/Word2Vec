@@ -17,6 +17,15 @@ public interface HuffmanTreeBuilder {
     public HuffmanTree buildHuffmanTree(SentenceReader sentenceReader, int size);
 
     /**
+     * ハフマン木を構築
+     * @param sentenceReader
+     * @param size
+     * @param value
+     * @return
+     */
+    public HuffmanTree buildHuffmanTree(SentenceReader sentenceReader, int size, double value);
+
+    /**
      * 下から順にルート一歩手前のノードまでのノードのリストを返す
      * @param word 単語
      * @return ノードのリスト

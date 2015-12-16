@@ -1,103 +1,119 @@
 package com.github.sakaizawa.word2vec;
 
 import org.junit.Test;
+import org.omg.CORBA.MARSHAL;
 
 import static org.junit.Assert.*;
 
 /**
- * Created by sakaisawayuya on 2015/11/12.
+ * Created by sakaisawayuya on 2015/12/16.
  */
 public class MatrixTest {
 
-    private Matrix matrix1 = new MatrixImp(1, 1);
-    private Matrix matrix2 = new MatrixImp(2, 3);
-
-    public MatrixTest () {
-        matrix1.add(0, 0, 1);
-
-        matrix2.add(0, 0, 1);
-        matrix2.add(0, 1, 2);
-        matrix2.add(0, 2, 3);
-        matrix2.add(1, 0, 4);
-        matrix2.add(1, 1, 5);
-        matrix2.add(1, 2, 6);
-    }
+    private Matrix matrix1 = new MatrixImp(1, 1, 0);
+    private Matrix matrix2 = new MatrixImp(2, 2, 1);
+    private Matrix matrix3 = new MatrixImp(2, 3, 1);
 
     @Test
     public void testGetRowNum() throws Exception {
-        assertEquals(1, matrix1.getRowNum());
-        assertEquals(2, matrix2.getRowNum());
+        assertEquals(matrix1.getRowNum(), 1);
+        assertEquals(matrix2.getRowNum(), 2);
+        assertEquals(matrix3.getRowNum(), 2);
     }
 
     @Test
     public void testGetColumnNum() throws Exception {
-        assertEquals(1, matrix1.getColumnNum());
-        assertEquals(3, matrix2.getColumnNum());
-    }
-
-    @Test
-    public void testAdd() throws Exception {
-        matrix1.add(0, 0, 10);
-        assertEquals(11, matrix1.getElement(0, 0), 0.001);
-
-        matrix2.add(0, 0, 10);
-        matrix2.add(0, 1, 20);
-        matrix2.add(0, 2, 30);
-        matrix2.add(1, 0, 40);
-        matrix2.add(1, 1, 50);
-        matrix2.add(1, 2, 60);
-        assertEquals(11, matrix2.getElement(0, 0), 0.001);
-        assertEquals(22, matrix2.getElement(0, 1), 0.001);
-        assertEquals(33, matrix2.getElement(0, 2), 0.001);
-        assertEquals(44, matrix2.getElement(1, 0), 0.001);
-        assertEquals(55, matrix2.getElement(1, 1), 0.001);
-        assertEquals(66, matrix2.getElement(1, 2), 0.001);
-    }
-
-    @Test
-    public void testGetElement() throws Exception {
-        assertEquals(1, matrix1.getElement(0, 0), 0.001);
-
-        assertEquals(1, matrix2.getElement(0, 0), 0.001);
-        assertEquals(2, matrix2.getElement(0, 1), 0.001);
-        assertEquals(3, matrix2.getElement(0, 2), 0.001);
-        assertEquals(4, matrix2.getElement(1, 0), 0.001);
-        assertEquals(5, matrix2.getElement(1, 1), 0.001);
-        assertEquals(6, matrix2.getElement(1, 2), 0.001);
+        assertEquals(matrix1.getColumnNum(), 1);
+        assertEquals(matrix2.getColumnNum(), 2);
+        assertEquals(matrix3.getColumnNum(), 3);
     }
 
     @Test
     public void testGetRow() throws Exception {
-        Vector row1 = matrix1.getRow(0);
-        assertEquals(1, row1.getElement(0), 0.001);
+        /*
+        Vector vector = new VectorImp(1, 0);
+        Vector vector1 = matrix1.getRow(0);
+        assertTrue(vector1.equals(vector));
 
-        Vector row2 = matrix2.getRow(0);
-        assertEquals(1, row2.getElement(0), 0.001);
-        assertEquals(2, row2.getElement(1), 0.001);
-        assertEquals(3, row2.getElement(2), 0.001);
+        vector = new VectorImp(2, 1);
+        Vector vector2_1 = matrix2.getRow(0);
+        Vector vector2_2 = matrix2.getRow(1);
+        assertTrue(vector2_1.equals(vector));
+        assertTrue(vector2_2.equals(vector));
 
-        Vector row3 = matrix2.getRow(1);
-        assertEquals(4, row3.getElement(0), 0.001);
-        assertEquals(5, row3.getElement(1), 0.001);
-        assertEquals(6, row3.getElement(2), 0.001);
-
+        vector = new VectorImp(3, 1);
+        Vector vector3_1 = matrix3.getRow(0);
+        Vector vector3_2 = matrix3.getRow(1);
+        assertTrue(vector3_1.equals(vector));
+        assertTrue(vector3_2.equals(vector));
+        */
     }
 
     @Test
     public void testGetColumn() throws Exception {
-        Vector column1 = matrix1.getColumn(0);
-        assertEquals(1, column1.getElement(0), 0.001);
+        /*
+        Vector vector = new VectorImp(1, 0);
+        Vector vector1 = matrix1.getColumn(0);
+        assertTrue(vector1.equals(vector));
 
-        Vector column2 = matrix2.getColumn(0);
-        assertEquals(1, column2.getElement(0), 0.001);
-        assertEquals(4, column2.getElement(1), 0.001);
+        vector = new VectorImp(2, 1);
+        Vector vector2_1 = matrix2.getColumn(0);
+        Vector vector2_2 = matrix2.getColumn(1);
+        assertTrue(vector2_1.equals(vector));
+        assertTrue(vector2_2.equals(vector));
 
-        Vector column3 = matrix2.getColumn(1);
-        assertEquals(2, column3.getElement(0), 0.001);
-        assertEquals(5, column3.getElement(1), 0.001);
+        Vector vector3_1 = matrix3.getColumn(0);
+        Vector vector3_2 = matrix3.getColumn(1);
+        Vector vector3_3 = matrix3.getColumn(2);
+        assertTrue(vector3_1.equals(vector));
+        assertTrue(vector3_2.equals(vector));
+        assertTrue(vector3_3.equals(vector));
+        */
+    }
 
-        Vector column4 = matrix2.getColumn(2);
-        assertEquals(3, column4.getElement(0), 0.001);
-        assertEquals(6, column4.getElement(1), 0.001);
+    @Test
+    public void testGetElement() throws Exception {
+        assertEquals(matrix1.getElement(0, 0), 0, 0.001);
+
+        assertEquals(matrix2.getElement(0, 0), 1, 0.001);
+        assertEquals(matrix2.getElement(0, 1), 1, 0.001);
+        assertEquals(matrix2.getElement(1, 0), 1, 0.001);
+        assertEquals(matrix2.getElement(1, 1), 1, 0.001);
+
+        assertEquals(matrix3.getElement(0, 0), 1, 0.001);
+        assertEquals(matrix3.getElement(0, 1), 1, 0.001);
+        assertEquals(matrix3.getElement(0, 2), 1, 0.001);
+        assertEquals(matrix3.getElement(1, 0), 1, 0.001);
+        assertEquals(matrix3.getElement(1, 1), 1, 0.001);
+        assertEquals(matrix3.getElement(1, 2), 1, 0.001);
+    }
+
+    @Test
+    public void testAddElement() throws Exception {
+        matrix1.addElement(0, 0, 2);
+        assertEquals(matrix1.getElement(0, 0), 2, 0.001);
+
+        matrix2.addElement(0, 0, 2);
+        matrix2.addElement(0, 1, 3);
+        matrix2.addElement(1, 0, 4);
+        matrix2.addElement(1, 1, 5);
+        assertEquals(matrix2.getElement(0, 0), 3, 0.001);
+        assertEquals(matrix2.getElement(0, 1), 4, 0.001);
+        assertEquals(matrix2.getElement(1, 0), 5, 0.001);
+        assertEquals(matrix2.getElement(1, 1), 6, 0.001);
+
+        matrix3.addElement(0, 0, 2);
+        matrix3.addElement(0, 1, 3);
+        matrix3.addElement(0, 2, 4);
+        matrix3.addElement(1, 0, 5);
+        matrix3.addElement(1, 1, 6);
+        matrix3.addElement(1, 2, 7);
+        assertEquals(matrix3.getElement(0, 0), 3, 0.001);
+        assertEquals(matrix3.getElement(0, 1), 4, 0.001);
+        assertEquals(matrix3.getElement(0, 2), 5, 0.001);
+        assertEquals(matrix3.getElement(1, 0), 6, 0.001);
+        assertEquals(matrix3.getElement(1, 1), 7, 0.001);
+        assertEquals(matrix3.getElement(1, 2), 8, 0.001);
+
     }
 }

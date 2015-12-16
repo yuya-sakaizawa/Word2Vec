@@ -6,11 +6,6 @@ package com.github.sakaizawa.word2vec;
 public interface Matrix {
 
     /**
-     * 行列の初期化
-     */
-    public void initialize();
-
-    /**
      * 行列の行数を返す
      * @return 行数
      */
@@ -22,33 +17,34 @@ public interface Matrix {
      */
     public int getColumnNum();
 
+
     /**
-     * 行列の要素にnumberを加える
+     * 指定された行のベクトルを返す
      * @param row 行数
-     * @param column 列数
-     * @param number 加える数
+     * @return 指定された行のベクトル
      */
-    public void add(int row, int column, double number);
+    public Vector getRow(int row);
+
+    /**
+     * 指定された列のベクトルを返す
+     * @param column 列数
+     * @return 指定された列のベクトル
+     */
+    public Vector getColumn(int column);
 
     /**
      * 行列の指定された要素を返す
      * @param row 行数
      * @param column 列数
-     * @return 要素
+     * @return 指定された要素
      */
     public double getElement(int row, int column);
 
     /**
-     * 行列の指定された行を返す
+     * 行列の要素に num を加える
      * @param row 行数
-     * @return 指定された行
-     */
-    public Vector getRow(int row);
-
-    /**
-     * 指定された列を返す
      * @param column 列数
-     * @return 指定された列
+     * @param num 加える数
      */
-    public Vector getColumn(int column);
+    public void addElement(int row, int column, double num);
 }

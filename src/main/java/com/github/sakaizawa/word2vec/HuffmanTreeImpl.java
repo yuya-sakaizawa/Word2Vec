@@ -17,14 +17,22 @@ public class HuffmanTreeImpl
 
     public HuffmanTreeImpl (int size) {
         this.vector = new VectorImp(size);
-        this.vector.initialize();
+    }
+
+    public HuffmanTreeImpl (int size, double value) {
+        this.vector = new VectorImp(size, value);
     }
 
     public HuffmanTreeImpl (String label, int freq, int size) {
         this.label = label;
         this.freq = freq;
         this.vector = new VectorImp(size);
-        this.vector.initialize();
+    }
+
+    public HuffmanTreeImpl (String label, int freq, int size, double value) {
+        this.label = label;
+        this.freq = freq;
+        this.vector = new VectorImp(size, value);
     }
 
     /**
