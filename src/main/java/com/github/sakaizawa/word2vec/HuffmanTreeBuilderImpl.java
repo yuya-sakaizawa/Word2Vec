@@ -98,12 +98,13 @@ public class HuffmanTreeBuilderImpl
     }
 
     private HuffmanTree connectNode(int size) {
+        int number = 0;
         while (nodeList.size() != 1) {
             HuffmanTree parent;
             if (java.lang.Double.isNaN(value)) {
-                parent = new HuffmanTreeImpl(size);
+                parent = new HuffmanTreeImpl(number++, size);
             } else {
-                parent = new HuffmanTreeImpl(size, value);
+                parent = new HuffmanTreeImpl(number++, size, value);
             }
             parent.addNode(nodeList.get(0), nodeList.get(1));
             nodeList.remove(0);

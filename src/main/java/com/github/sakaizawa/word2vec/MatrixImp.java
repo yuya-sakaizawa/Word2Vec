@@ -22,6 +22,7 @@ public class MatrixImp
     }
 
     public MatrixImp(double[][] matrix) {
+        this.matrix = new double[matrix.length][matrix[0].length];
         for (int i = 0; i < matrix.length; i++) {
             this.matrix[i] = matrix[i].clone();
         }
@@ -93,7 +94,11 @@ public class MatrixImp
      */
     @Override
     public Vector getColumn(int column) {
-        return null;
+        Vector vector = new VectorImp(matrix.length, 0);
+        for (int i = 0; i < vector.getDimension(); i++) {
+            vector.addElement(i, matrix[i][column]);
+        }
+        return vector;
     }
 
     /**

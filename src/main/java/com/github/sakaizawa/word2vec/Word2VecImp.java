@@ -9,9 +9,25 @@ import java.util.*;
 public class Word2VecImp
         implements Word2Vec, Serializable {
 
-    private Matrix inputMatrix;
-    private List<List<HuffmanTree>> nodeLists = new ArrayList<List<HuffmanTree>>();;
-    private Vocab vocab;
+    Matrix inputMatrix;
+    Matrix outputMatrix;
+    HuffmanTreeBuilder huffmanTreeBuilder;
+    Vocab vocab;
+
+    public Word2VecImp () {}
+
+    public Word2VecImp(Matrix inputMatrix, Matrix outputMatrix, Vocab vocab) {
+        this.inputMatrix = inputMatrix;
+        this.outputMatrix = outputMatrix;
+        this.vocab = vocab;
+    }
+
+    public Word2VecImp(Matrix inputMatrix, Matrix outputMatrix, HuffmanTreeBuilder huffmanTreeBuilder, Vocab vocab) {
+        this.inputMatrix = inputMatrix;
+        this.outputMatrix = outputMatrix;
+        this.huffmanTreeBuilder = huffmanTreeBuilder;
+        this.vocab = vocab;
+    }
 
     /**
      * word2vec の学習:epoc 指定あり
@@ -47,11 +63,9 @@ public class Word2VecImp
     public void train(File file, LearningStrategy learningStrategy, int window, int size, int minCount, double learningRate) throws IOException {
         this.vocab = new Vocab(new SentenceReader(file));
         this.inputMatrix = new MatrixImp(vocab.vocabNum(), size);
-        HuffmanTreeBuilder huffmanTreeBuilder = new HuffmanTreeBuilderImpl();
+        this.outputMatrix = new MatrixImp(size, vocab.vocabNum()-1);
+        this.huffmanTreeBuilder = new HuffmanTreeBuilderImpl();
         huffmanTreeBuilder.buildHuffmanTree(new SentenceReader(file), size);
-        for (int i = 0; i < vocab.vocabNum(); i++) {
-            nodeLists.add(huffmanTreeBuilder.getNodeList(vocab.getWord(i)));
-        }
 
         SentenceReader sentenceReader = new SentenceReader(file);
         System.out.println("start");
@@ -65,17 +79,17 @@ public class Word2VecImp
         for (int wordNum = 0; wordNum < sentence.length; wordNum++) {
             String word = sentence[wordNum];
             Vector errorVector = new VectorImp(size);
-            Map<HuffmanTree, Double> errorNode = new HashMap<HuffmanTree, Double>();
+            Map<Integer, Double> updateNumbers = new HashMap<Integer, Double>();
             for (int i = -window; i <= window; i++) {
                 if ((wordNum + i < 0) || (sentence.length <= wordNum + i) || (i == 0)) {
                     continue;
                 } else {
                     String predictWord = sentence[wordNum + i];
-                    calculateErrorNode(errorNode, predictWord, word);
+                    calculateUpdateNumbers(updateNumbers, predictWord, word);
                 }
             }
-            calculateError(errorVector, errorNode);
-            updateNode(errorNode, word, learningRate);
+            calculateError(errorVector, updateNumbers);
+            updateOutput(updateNumbers, word, learningRate);
             updateInput(errorVector, word, learningRate);
         }
     }
@@ -87,49 +101,50 @@ public class Word2VecImp
         }
     }
 
-    void updateNode(Map<HuffmanTree, Double> errorNode, String word, double learningRate) {
+    void updateOutput(Map<Integer, Double> updateNumbers, String word, double learningRate) {
         Vector hiddenVector = inputMatrix.getRow(vocab.getIndex(word));
-        for (HuffmanTree node : errorNode.keySet()) {
+        for (Integer num : updateNumbers.keySet()) {
             for (int i = 0; i < hiddenVector.getDimension(); i++) {
-                node.getVector().addElement(i, -learningRate * errorNode.get(node) * hiddenVector.getElement(i));
+                outputMatrix.addElement(i, num, -learningRate * updateNumbers.get(num) * hiddenVector.getElement(i));
             }
         }
     }
 
-    void calculateError(Vector errorVector, Map<HuffmanTree, Double> errorNode) {
-        for (HuffmanTree node : errorNode.keySet()) {
+    void calculateError(Vector errorVector, Map<Integer, Double> updateNumbers) {
+        for (Integer num : updateNumbers.keySet()) {
             for (int i = 0; i < errorVector.getDimension(); i++) {
-                errorVector.addElement(i, errorNode.get(node) * node.getVector().getElement(i));
+                errorVector.addElement(i, updateNumbers.get(num) * outputMatrix.getElement(i, num));
             }
         }
     }
 
-    void calculateErrorNode(Map<HuffmanTree, Double> errorNode, String predictWord, String word) {
-        List<HuffmanTree> nodeList = nodeLists.get(vocab.getIndex(predictWord));
+    void calculateUpdateNumbers(Map<Integer, Double> updateNumbers, String predictWord, String word) {
+        List<HuffmanTree> nodeList = huffmanTreeBuilder.getNodeList(predictWord);
         Vector hiddenVector = inputMatrix.getRow(vocab.getIndex(word));
         for (int nodeNum = nodeList.size()-1; nodeNum > 0 ; nodeNum--) {
             HuffmanTree node = nodeList.get(nodeNum);
             HuffmanTree child = nodeList.get(nodeNum-1);
-            double dot = calculateDot(node.getVector(), hiddenVector);
+            double dot = calculateDot(outputMatrix.getColumn(node.getNumber()), hiddenVector);
             double sig = calculateSigmoid(dot);
             if (child.equals(node.getLeftChild())) {
-                if (errorNode.containsKey(node)) {
-                    errorNode.put(node, errorNode.get(node) + (sig -1));
+                if (updateNumbers.containsKey(node.getNumber())) {
+                    updateNumbers.put(node.getNumber(), updateNumbers.get(node.getNumber()) + (sig -1));
                 } else {
-                    errorNode.put(node, (sig -1));
+                    updateNumbers.put(node.getNumber(), (sig - 1));
                 }
             } else {
-                if (errorNode.containsKey(node)) {
-                    errorNode.put(node, errorNode.get(node) + sig);
+                if (updateNumbers.containsKey(node.getNumber())) {
+                    updateNumbers.put(node.getNumber(), updateNumbers.get(node.getNumber()) + sig);
                 } else {
-                    errorNode.put(node, sig);
+                    updateNumbers.put(node.getNumber(), sig);
                 }
             }
         }
     }
 
+
     double calculateDot (Vector vector1, Vector vector2) {
-        double dot = 0f;
+        double dot = 0;
         for (int i = 0; i < vector1.getDimension(); i++) {
             dot += vector1.getElement(i) * vector2.getElement(i);
         }

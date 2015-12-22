@@ -16,7 +16,7 @@ public class HuffmanTreeImplTest {
         HuffmanTree node2 = new HuffmanTreeImpl("node2", 2,  10);
         assertTrue(node2.isLeaf());
 
-        HuffmanTree parent1 = new HuffmanTreeImpl(10);
+        HuffmanTree parent1 = new HuffmanTreeImpl(1, 10);
         parent1.addNode(node1, node2);
         assertFalse(parent1.isLeaf());
         assertTrue(parent1.getLeftChild().isLeaf());
@@ -24,9 +24,9 @@ public class HuffmanTreeImplTest {
 
         HuffmanTree node3 = new HuffmanTreeImpl("node3", 3,  10);
         HuffmanTree node4 = new HuffmanTreeImpl("node4", 4,  10);
-        HuffmanTree parent2 = new HuffmanTreeImpl(10);
+        HuffmanTree parent2 = new HuffmanTreeImpl(2, 10);
         parent2.addNode(node3, node4);
-        HuffmanTree parent3 = new HuffmanTreeImpl(10);
+        HuffmanTree parent3 = new HuffmanTreeImpl(3, 10);
         parent3.addNode(parent1, parent2);
         assertFalse(parent3.isLeaf());
         assertFalse(parent3.getLeftChild().isLeaf());
@@ -44,7 +44,7 @@ public class HuffmanTreeImplTest {
         HuffmanTree node2 = new HuffmanTreeImpl("node2", 2,  10);
         assertTrue(node2.isROOT());
 
-        HuffmanTree parent1 = new HuffmanTreeImpl(10);
+        HuffmanTree parent1 = new HuffmanTreeImpl(1, 10);
         parent1.addNode(node1, node2);
         assertTrue(parent1.isROOT());
         assertFalse(parent1.getLeftChild().isROOT());
@@ -52,9 +52,9 @@ public class HuffmanTreeImplTest {
 
         HuffmanTree node3 = new HuffmanTreeImpl("node3", 3,  10);
         HuffmanTree node4 = new HuffmanTreeImpl("node4", 4,  10);
-        HuffmanTree parent2 = new HuffmanTreeImpl(10);
+        HuffmanTree parent2 = new HuffmanTreeImpl(2, 10);
         parent2.addNode(node3, node4);
-        HuffmanTree parent3 = new HuffmanTreeImpl(10);
+        HuffmanTree parent3 = new HuffmanTreeImpl(3, 10);
         parent3.addNode(parent1, parent2);
         assertTrue(parent3.isROOT());
         assertFalse(parent3.getLeftChild().isROOT());
@@ -70,7 +70,7 @@ public class HuffmanTreeImplTest {
         HuffmanTree node1 = new HuffmanTreeImpl("node1", 1,  10);
         HuffmanTree node2 = new HuffmanTreeImpl("node2", 2,  10);
 
-        HuffmanTree parent1 = new HuffmanTreeImpl(10);
+        HuffmanTree parent1 = new HuffmanTreeImpl(1, 10);
         parent1.addNode(node1, node2);
         assertEquals("node1", parent1.getLeftChild().getLabel());
         assertEquals("node2", parent1.getRightChild().getLabel());
@@ -79,9 +79,9 @@ public class HuffmanTreeImplTest {
 
         HuffmanTree node3 = new HuffmanTreeImpl("node3", 3,  10);
         HuffmanTree node4 = new HuffmanTreeImpl("node4", 4,  10);
-        HuffmanTree parent2 = new HuffmanTreeImpl(10);
+        HuffmanTree parent2 = new HuffmanTreeImpl(2, 10);
         parent2.addNode(node3, node4);
-        HuffmanTree parent3 = new HuffmanTreeImpl(10);
+        HuffmanTree parent3 = new HuffmanTreeImpl(3, 10);
         parent3.addNode(parent1, parent2);
         assertEquals("node1", parent3.getLeftChild().getLeftChild().getLabel());
         assertEquals("node2", parent3.getLeftChild().getRightChild().getLabel());
@@ -96,15 +96,15 @@ public class HuffmanTreeImplTest {
         assertEquals(1, node1.getFreq());
         assertEquals(2, node2.getFreq());
 
-        HuffmanTree parent1 = new HuffmanTreeImpl(10);
+        HuffmanTree parent1 = new HuffmanTreeImpl(1, 10);
         parent1.addNode(node1, node2);
         assertEquals(3, parent1.getFreq());
 
         HuffmanTree node3 = new HuffmanTreeImpl("node3", 3,  10);
         HuffmanTree node4 = new HuffmanTreeImpl("node4", 4,  10);
-        HuffmanTree parent2 = new HuffmanTreeImpl(10);
+        HuffmanTree parent2 = new HuffmanTreeImpl(2, 10);
         parent2.addNode(node3, node4);
-        HuffmanTree parent3 = new HuffmanTreeImpl(10);
+        HuffmanTree parent3 = new HuffmanTreeImpl(3, 10);
         parent3.addNode(parent1, parent2);
         assertEquals(10, parent3.getFreq());
     }

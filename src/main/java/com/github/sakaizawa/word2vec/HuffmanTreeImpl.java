@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class HuffmanTreeImpl
     implements HuffmanTree, Serializable{
 
+    private int number;
     private String label;
     private HuffmanTree parent;
     private HuffmanTree rightChild;
@@ -15,21 +16,25 @@ public class HuffmanTreeImpl
     private int freq;
     private Vector vector;
 
-    public HuffmanTreeImpl (int size) {
+    public HuffmanTreeImpl (int number, int size) {
+        this.number = number;
         this.vector = new VectorImp(size);
     }
 
-    public HuffmanTreeImpl (int size, double value) {
+    public HuffmanTreeImpl (int number, int size, double value) {
+        this.number = number;
         this.vector = new VectorImp(size, value);
     }
 
     public HuffmanTreeImpl (String label, int freq, int size) {
+        this.number = -1;
         this.label = label;
         this.freq = freq;
         this.vector = new VectorImp(size);
     }
 
     public HuffmanTreeImpl (String label, int freq, int size, double value) {
+        this.number = -1;
         this.label = label;
         this.freq = freq;
         this.vector = new VectorImp(size, value);
@@ -68,6 +73,12 @@ public class HuffmanTreeImpl
         leftChild.setParent(this);
         rightChild.setParent(this);
     }
+
+    /**
+     * ノード番号を返す
+     * @return ノード番号
+     */
+    public int getNumber() { return this.number; }
 
     /**
      * ラベルを返す

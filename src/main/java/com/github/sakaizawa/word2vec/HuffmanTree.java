@@ -25,6 +25,12 @@ public interface HuffmanTree {
     public void addNode(HuffmanTree leftChild, HuffmanTree rightChild);
 
     /**
+     * ノード番号を返す
+     * @return ノード番号
+     */
+    public int getNumber();
+
+    /**
      * ラベルを返す
      * @return ラベル
      */
