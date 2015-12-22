@@ -8,11 +8,12 @@ import java.io.*;
 public class Demo {
 
     public static void main(String[] args) throws IOException {
+        //File inputFile = new File("/Users/sakaisawayuya/Desktop/JX/Word2Vec/data/test2");
         File inputFile = new File("/Users/sakaisawayuya/Desktop/JX/Word2Vec/data/wiki-ja-train_wakati.txt");
         //File inputFile = new File("/Users/sakaisawayuya/Desktop/JX/Word2Vec/data/head_200000.txt");
         Word2Vec word2Vec = new Word2VecImp();
         LearningStrategy learningStrategy = LearningStrategy.HS;
-        word2Vec.train(inputFile, learningStrategy, 5, 50, 0, 0.025, 1);
+        word2Vec.train(inputFile, learningStrategy, 5, 5, 0, 0.025, 5);
         System.out.println();
 
 

@@ -181,17 +181,45 @@ public class Word2VecImp
      * @param topN 個数
      */
     public void mostSimilarity(String word, int topN) {
-        int index = 1;
-        double max = 0.0f;
+        int index = 0;
+        Map<String, Double> similarity = new HashMap<String, Double>();
         for (String key : vocab.getVocab().keySet()) {
-            if (similarity(word, key) >= max && !key.equals(word)) {
-                System.out.print(similarity(key, word));
-                System.out.println("　　　"+key);
-                index = vocab.getIndex(key);
-                max = similarity(word, key);
-            }
+            similarity.put(key, similarity(key, word));
         }
-        System.out.println(vocab.getWord(index));
-        System.out.println(max);
+        Map<String, Double> sortMap = sortByComparator(similarity);
+        sortMap.remove(word);
+        for (String key : sortMap.keySet()) {
+            if (index < topN) {
+                System.out.println(key+" "+sortMap.get(key));
+            } else {
+                break;
+            }
+            index++;
+        }
+    }
+
+    private static Map<String, Double> sortByComparator(Map<String, Double> unsortMap) {
+
+        // Convert Map to List
+        List<Map.Entry<String, Double>> list =
+                new LinkedList<Map.Entry<String, Double>>(unsortMap.entrySet());
+
+        // Sort list with comparator, to compare the Map values
+        Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {
+            public int compare(Map.Entry<String, Double> o1,
+                               Map.Entry<String, Double> o2) {
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
+
+        Collections.reverse(list);
+
+        // Convert sorted map back to a Map
+        Map<String, Double> sortedMap = new LinkedHashMap<String, Double>();
+        for (Iterator<Map.Entry<String, Double>> it = list.iterator(); it.hasNext();) {
+            Map.Entry<String, Double> entry = it.next();
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedMap;
     }
 }
